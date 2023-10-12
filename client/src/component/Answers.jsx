@@ -53,7 +53,7 @@ const Answers = () => {
   }, [currentQuestionIndex, questions]);
 
   return (
-    <Box className="w-full rounded-lg text-white grid grid-cols-2 gap-2 mb-4">
+    <Box className="w-full flex flex-col sm:grid sm:grid-cols-2 rounded-lg text-white  gap-2 mb-4">
       {suffle.map((ans, i) => (
         <span
           className="border-[3px] 
@@ -66,7 +66,7 @@ const Answers = () => {
           hover:border-[#803409] 
           cursor-pointer 
           whitespace-normal 
-          text-[8px] sm:text-[14px]"
+          text-[10px] sm:text-[14px]"
           key={ans}
           onClick={() => handleCorrectAnswer(ans)}
         >

@@ -11,14 +11,19 @@ const questionSlice = createSlice({
     questionPassed: false,
   },
   reducers: {
+    setCurrentQuestionIndex:(state, action) => {
+      state.currentQuestionIndex = action.payload;
+    },
     setQuestions: (state, action) => {
       state.questions = action.payload;
     },
     moveToNextQuestion: (state) => {
       if (state.currentQuestionIndex < state.questions.length - 1) {
         state.currentQuestionIndex += 1;
+        sessionStorage.setItem('currentQuestion',JSON.stringify(state.currentQuestionIndex))
       } else {
         state.currentQuestionIndex = 0;
+        sessionStorage.setItem('currentQuestion',JSON.stringify(state.currentQuestionIndex))
       }
     },
     moveToPreviousQuestion: (state) => {
@@ -28,6 +33,7 @@ const questionSlice = createSlice({
     },
     exitQuestion: (state) => {
       state.currentQuestionIndex = 0
+      sessionStorage.setItem('currentQuestion',JSON.stringify(state.currentQuestionIndex))
     },
     handleShowResult: (state, action) => {
       state.showResult = action.payload;
@@ -46,6 +52,7 @@ const questionSlice = createSlice({
 
 export default questionSlice.reducer;
 export const {
+  setCurrentQuestionIndex,
   setQuestions,
   moveToNextQuestion,
   moveToPreviousQuestion,

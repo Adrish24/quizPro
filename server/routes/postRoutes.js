@@ -19,7 +19,7 @@ router.route('/').post(async (req, res) => {
 
     res.status(201).json({sucess: true, data: newPost})
     } catch (error) {
-       res.status(500).json({sucess: false, message: error.message}) 
+       res.status(500).json({sucess: false, message: error}) 
     }
 })
 

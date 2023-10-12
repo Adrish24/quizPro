@@ -9,6 +9,7 @@ const scoreSlice = createSlice({
     reducers: {
         setScore: (state, action) => {
             state.currentScore = action.payload
+            sessionStorage.setItem('score', JSON.stringify(state.currentScore));
         }
     }
 })

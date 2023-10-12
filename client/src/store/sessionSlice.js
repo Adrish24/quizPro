@@ -8,6 +8,7 @@ const sessionSlice = createSlice({
     reducers: {
         setSessionToken: (state, action) => {
             state.sessionToken = action.payload
+            sessionStorage.setItem("sessionToken", JSON.stringify(state.sessionToken));
         }
     }
 })

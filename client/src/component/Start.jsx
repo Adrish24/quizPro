@@ -8,35 +8,63 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setSessionToken } from "../store/sessionSlice";
 import { useEffect } from "react";
+import { fetchData } from "../store/apiSlice";
+import LoadingScreen from "./LoadingScreen";
+import ErrorScreen from "./ErrorScreen";
 
 
 
 function Start() {
-  const { user, handleFetchQuestions } = useAuth();
+  const { user } = useAuth();
+  const { selectedCategoryValue } = useSelector((state) => state.category);
+  const { selectedDifficulty } = useSelector((state) => state.difficulty);
+  const { data, status } = useSelector((state) => state.api);
   const { sessionToken } = useSelector((state) => state.session);
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const payload = { name: user.displayName };
-  
-  const handleSessionToken = async() => {
+
+  const handleSessionToken = async () => {
     try {
-      if(user){
-        const response = await axios.post("http://localhost:5000/generate", payload)
-        dispatch(setSessionToken((response.data.accessToken)))
-        handleFetchQuestions();
-        navigate(`/${user.uid}/quiz`)
+      if (user) {
+        const response = await axios.post(
+          "https://quizpro.onrender.com/generate",
+          payload,
+        );
+        dispatch(setSessionToken(response.data.accessToken));
+        await handleFetchQuestions();
       }
     } catch (error) {
       console.log(error.message);
     }
-  }
+  };
+
+  const handleFetchQuestions = async () => {
+    dispatch(
+      fetchData({
+        category: selectedCategoryValue,
+        difficulty: selectedDifficulty,
+      })
+    );
+  };
 
   useEffect(() => {
-    if(sessionToken){
+    if(sessionToken && status === 'idle') {
+      console.log(sessionToken, data)
       navigate(`/${user.uid}/quiz`)
     }
-  },[])
+  },[sessionToken, status])
+
+
+
+  if (status === "loading") {
+    return <LoadingScreen />;
+  }
+
+  if (status === "failed") {
+    return <ErrorScreen />;
+  }
 
   return (
     <Box className="flex flex-col justify-center items-center my-[100px] select-none">
@@ -65,9 +93,7 @@ function Start() {
         {/* Difficulty select */}
         <DifficultySelect />
         <Link
-          onClick={() => {
-            handleSessionToken()
-          }}
+          onClick={handleSessionToken}
           className="bg-yellow-500 px-4 py-2 font-semibold rounded-md text-center"
         >
           Begin Quiz

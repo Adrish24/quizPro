@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 export const fetchPost = createAsyncThunk("api/fetchPost", async () => {
-  const response = await axios.get("http://localhost:5000/get");
+  const response = await axios.get("https://quizpro.onrender.com/get");
   return response.data;
 });
 

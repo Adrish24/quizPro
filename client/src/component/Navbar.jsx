@@ -64,9 +64,9 @@ const Navbar = () => {
   }, [showNavMenu, showProfMenu]);
 
   useEffect(() => {
-    console.log(userData)
     if(userData.length !== 0){
-      const calculateScore = userData.reduce((maxScore, item) => {
+      const currentUserData = userData.filter(data => data.uid === user.uid)
+      const calculateScore = currentUserData.reduce((maxScore, item) => {
         if(item.score > maxScore){
           return item.score
         }

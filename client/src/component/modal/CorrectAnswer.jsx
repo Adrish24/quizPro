@@ -16,6 +16,7 @@ const CorrectAnswer = () => {
     (state) => state.questions
   );
   const { currentScore } = useSelector((state) => state.score);
+
   return (
     <Box className="flex flex-col justify-center items-center">
       <Box className="text-[30px] sm:text-[40px] font-bold text-[#7fd3d3] text-center mb-8">

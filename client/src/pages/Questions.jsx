@@ -1,13 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import LoadingScreen from "../component/LoadingScreen";
-import ErrorScreen from "../component/ErrorScreen";
 import Result from "../component/modal/Result";
 import { Box, Button } from "@mui/material";
 import {
   exitQuestion,
   handleQuestionPassed,
   handleShowResult,
+  setCurrentQuestionIndex,
   setQuestions,
 } from "../store/questionSlice";
 import Answers from "../component/Answers";
@@ -22,8 +22,10 @@ import { useNavigate } from "react-router-dom";
 import { setSessionToken } from "../store/sessionSlice";
 
 const Questions = () => {
-  const { data, status } = useSelector((state) => state.api);
-  const { sessionToken} = useSelector(state => state.session)
+  const [loading, setLoading] = useState(false);
+
+  const { sessionToken } = useSelector((state) => state.session);
+
   const {
     questions,
     currentQuestionIndex,
@@ -40,73 +42,88 @@ const Questions = () => {
     const txt = document.createElement("textarea");
     txt.innerHTML = html;
     return txt.value;
-  }
+  };
 
   useEffect(() => {
     const storedQuestions = JSON.parse(
       sessionStorage.getItem("fetchQuestions")
     );
-
     const token = JSON.parse(sessionStorage.getItem("sessionToken"));
+    const questionIndex = JSON.parse(sessionStorage.getItem("currentQuestion"));
+    const scoreCount = JSON.parse(sessionStorage.getItem("score"));
 
-    dispatch(setQuestions(storedQuestions));
-    dispatch(setSessionToken(token));
+    if(token)dispatch(setSessionToken(token))
+    if(storedQuestions) dispatch(setQuestions(storedQuestions));
+    if(questionIndex) dispatch(setCurrentQuestionIndex(questionIndex));
+    if(scoreCount) dispatch(setScore(scoreCount))
     dispatch(handleShowResult(false));
     dispatch(handleQuestionPassed(false));
     dispatch(resetTimer());
+
   }, []);
 
-  useEffect(() => {
-    if (data.length === 0) return ;
-    if(sessionToken === '') return ;
-    
-    dispatch(setQuestions(data));
-    sessionStorage.setItem("fetchQuestions", JSON.stringify(data));
-    sessionStorage.setItem("sessionToken", JSON.stringify(sessionToken));
-
-  }, [data,sessionToken]);
-
-  
   const navigateToDashboard = () => {
+    setLoading(true);
+    dispatch(setSessionToken(""));
+    dispatch(setQuestions([]));
     navigate(`/${user.uid}/dashboard`);
+    sessionStorage.removeItem("sessionToken");
+    sessionStorage.removeItem("fetchQuestions");
+    setLoading(false);
   };
 
-  if (status === "loading") {
-    return <LoadingScreen />;
-  }
+  useEffect(() => {
+    if(!sessionToken){
+      navigate(`/${user.uid}/dashboard`)
+    }
+  },[sessionToken])
 
-  if (status === "failed") {
-    return <ErrorScreen />;
-  }
+  useEffect(() => {
+    if(questions.length !== 0)console.log(questions);
+  }, [questions]);
 
   return (
-    <Box className="bg-[#051c29] flex justify-center items-center min-h-screen p-4 relative">
-      <Box className="md:w-[800px] rounded-xl bg-[#051b30] p-8 flex flex-col justify-center item">
-        <Box className="border border-[#7fd3d3] rounded-lg mb-4 p-4 text-[#7fd3d3] bg-[#093147]">
-          {currentQuestionIndex + 1}.{" "}
-          {decodeHTML(questions?.[currentQuestionIndex]?.question)}
+    <>
+      {loading ? (
+        <LoadingScreen />
+      ) : questions && (
+        <Box className="bg-[#051c29] flex justify-center items-center min-h-screen p-2 sm:p-4 relative">
+          <Box className="md:w-[800px] rounded-xl bg-[#051b30] p-8 flex flex-col justify-center item">
+            <Box className="flex flex-col sm:flex-row justify-between mb-2 text-[#bae3e3] px-4 text-[10px] sm:text-[16px]">
+              <span>
+                CATEGORY: {questions?.[currentQuestionIndex]?.category}
+              </span>
+              <span>
+                DIFFICULTY: {questions?.[currentQuestionIndex]?.difficulty}
+              </span>
+            </Box>
+            <Box className="border border-[#7fd3d3] rounded-lg mb-4 p-4 text-[#7fd3d3] bg-[#093147]">
+              {currentQuestionIndex + 1}.{" "}
+              {decodeHTML(questions?.[currentQuestionIndex]?.question)}
+            </Box>
+            <Box className="flex justify-between mb-4">
+              <Countdown />
+              <CurrentScore />
+            </Box>
+            <Answers />
+            <Button
+              onClick={() => {
+                dispatch(exitQuestion());
+                dispatch(setScore(0));
+                dispatch(setSessionToken(""));
+                navigateToDashboard();
+              }}
+              variant="contained"
+              color="warning"
+            >
+              Exit
+            </Button>
+          </Box>
+          {showResult ? <Result /> : questionPassed ? <Passed /> : null}
+          {questionFinished ? <Finished /> : null}
         </Box>
-        <Box className="flex justify-between mb-4">
-          <Countdown />
-          <CurrentScore />
-        </Box>
-        <Answers />
-        <Button
-          onClick={() => {
-            dispatch(exitQuestion());
-            dispatch(setScore(0));
-            dispatch(setSessionToken(''))
-            navigateToDashboard();
-          }}
-          variant="contained"
-          color="warning"
-        >
-          Exit
-        </Button>
-      </Box>
-      {showResult ? <Result /> : questionPassed ? <Passed /> : null}
-      {questionFinished ? <Finished /> : null}
-    </Box>
+      ) }
+    </>
   );
 };
 
