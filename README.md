@@ -1,5 +1,5 @@
 # quizPro
-This is a quiz app
+This is a quiz app (responsive for all platform)
 
 In this app you can choose a category and difficulty level before starting the quiz.
 There is  a Leaderboard where you can see the highest scorer.
