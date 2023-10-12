@@ -9,3 +9,4 @@ libraries used for backend: express, node.js, jwt, cors, mongoose, nodemon.
 
 server is being hosted on : https://quizpro.onrender.com
 visit site: https://quiz-pro-roan.vercel.app/
+(Sign up using fake email)
